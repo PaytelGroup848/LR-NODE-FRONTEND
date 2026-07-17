@@ -28,13 +28,13 @@ export default function ClientDashboard() {
           icon={Key}
           label="Total Keys"
           value={totalKeys}
-          color="text-blue-600"
+          color="text-blue-500"
         />
         <StatCard
           icon={Key}
           label="Active Keys"
           value={activeKeys}
-          color="text-green-600"
+          color="text-green-500"
         />
       </div>
     </div>
