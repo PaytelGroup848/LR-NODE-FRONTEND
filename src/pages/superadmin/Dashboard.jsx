@@ -26,7 +26,7 @@ export default function SuperadminDashboard() {
           icon={UserRoundPlus}
           label="Total Partners"
           value={stats.partnerCount || 0}
-          color="text-blue-600"
+          color="text-blue-500"
         />
         <StatCard
           icon={Users}
@@ -38,7 +38,7 @@ export default function SuperadminDashboard() {
           icon={Key}
           label="Active Keys"
           value={stats.activeKeys || 0}
-          color="text-green-600"
+          color="text-green-500"
         />
         <StatCard
           icon={Key}
@@ -62,7 +62,7 @@ export default function SuperadminDashboard() {
           icon={Clock}
           label="Expiring in 30 Days"
           value={stats.expiringIn30Days || 0}
-          color="text-blue-600"
+          color="text-blue-500"
         />
       </div>
     </div>

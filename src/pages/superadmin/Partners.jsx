@@ -1,44 +1,52 @@
-
-import { useState } from 'react';
-import DataTable from '../../components/DataTable';
-import Pagination from '../../components/Pagination';
-import StatusBadge from '../../components/StatusBadge';
-import Modal from '../../components/Modal';
-import { useSuperadminPartners } from '../../hooks/useSuperadminPartners';
-import { useCreatePartner } from '../../hooks/useCreatePartner';
-import { useGeneratePartnerBulkKeys } from '../../hooks/useGeneratePartnerBulkKeys';
-import { useSuspendPartner } from '../../hooks/useSuspendPartner';
-import { useUnsuspendPartner } from '../../hooks/useUnsuspendPartner';
-import { useSendBulkKeysEmail } from '../../hooks/useSendBulkKeysEmail';
-import { Plus, Key, Mail, Ban, Check, BarChart3 } from 'lucide-react';
+import { useState } from "react";
+import DataTable from "../../components/DataTable";
+import Pagination from "../../components/Pagination";
+import StatusBadge from "../../components/StatusBadge";
+import Modal from "../../components/Modal";
+import { useSuperadminPartners } from "../../hooks/useSuperadminPartners";
+import { useCreatePartner } from "../../hooks/useCreatePartner";
+import { useGeneratePartnerBulkKeys } from "../../hooks/useGeneratePartnerBulkKeys";
+import { useSuspendPartner } from "../../hooks/useSuspendPartner";
+import { useUnsuspendPartner } from "../../hooks/useUnsuspendPartner";
+import { useSendBulkKeysEmail } from "../../hooks/useSendBulkKeysEmail";
+import { Plus, Key, Mail, Ban, Check, BarChart3 } from "lucide-react";
+import RectangularModal from "../../components/RectangularModal";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SuperadminPartners() {
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [generateKeysModalOpen, setGenerateKeysModalOpen] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [newPartner, setNewPartner] = useState({
-    representativeName: '',
-    companyName: '',
-    phone: '',
-    email: '',
-    address: '',
-    gstNumber: '',
-    salesRepresentativeName: '',
-    password: '',
-    confirmPassword: '',
+    representativeName: "",
+    companyName: "",
+    phone: "",
+    email: "",
+    address: "",
+    gstNumber: "",
+    salesRepresentativeName: "",
+    password: "",
+    confirmPassword: "",
   });
   const [keyQuantity, setKeyQuantity] = useState(1);
   const [keyValidity, setKeyValidity] = useState(30);
 
-  const { data, isLoading, isError } = useSuperadminPartners({ page, limit: 10, search });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const { data, isLoading, isError } = useSuperadminPartners({
+    page,
+    limit: 10,
+    search,
+  });
   const createPartner = useCreatePartner();
   const suspendPartner = useSuspendPartner();
   const unsuspendPartner = useUnsuspendPartner();
   const sendBulkKeysEmail = useSendBulkKeysEmail();
 
-  const generateKeys = selectedPartner ? useGeneratePartnerBulkKeys(selectedPartner._id) : null;
+  const generateKeys = useGeneratePartnerBulkKeys(selectedPartner?._id);
 
   const handleCreatePartner = (e) => {
     e.preventDefault();
@@ -46,15 +54,15 @@ export default function SuperadminPartners() {
       onSuccess: () => {
         setCreateModalOpen(false);
         setNewPartner({
-          representativeName: '',
-          companyName: '',
-          phone: '',
-          email: '',
-          address: '',
-          gstNumber: '',
-          salesRepresentativeName: '',
-          password: '',
-          confirmPassword: '',
+          representativeName: "",
+          companyName: "",
+          phone: "",
+          email: "",
+          address: "",
+          gstNumber: "",
+          salesRepresentativeName: "",
+          password: "",
+          confirmPassword: "",
         });
       },
     });
@@ -62,36 +70,44 @@ export default function SuperadminPartners() {
 
   const handleGenerateKeys = (e) => {
     e.preventDefault();
-    if (generateKeys) {
-      generateKeys.mutate({ quantity: keyQuantity, validityDays: keyValidity }, {
+
+    if (!selectedPartner) {
+      // Handle no partner selected
+      return;
+    }
+    generateKeys.mutate(
+      { quantity: keyQuantity, validityDays: keyValidity },
+      {
         onSuccess: () => {
           setGenerateKeysModalOpen(false);
           setSelectedPartner(null);
+          setKeyQuantity(1);
+          setKeyValidity(30);
         },
-      });
-    }
+      },
+    );
   };
 
   const columns = [
-    { key: 'representativeName', title: 'Name' },
-    { key: 'companyName', title: 'Company' },
-    { key: 'email', title: 'Email' },
+    { key: "representativeName", title: "Name" },
+    { key: "companyName", title: "Company" },
+    { key: "email", title: "Email" },
     {
-      key: 'status',
-      title: 'Status',
+      key: "status",
+      title: "Status",
       render: (row) => <StatusBadge status={row.status} />,
     },
     {
-      key: 'actions',
-      title: 'Actions',
+      key: "actions",
+      title: "Actions",
       render: (row) => (
         <div className="flex gap-2">
-          <button
+          {/* <button
             className="p-2 text-purple-600 hover:bg-purple-50 rounded"
             title="View Stats"
           >
             <BarChart3 className="h-4 w-4" />
-          </button>
+          </button> */}
           <button
             onClick={() => {
               setSelectedPartner(row);
@@ -109,7 +125,7 @@ export default function SuperadminPartners() {
           >
             <Mail className="h-4 w-4" />
           </button>
-          {row.status === 'active' ? (
+          {row.status === "active" ? (
             <button
               onClick={() => suspendPartner.mutate(row._id)}
               className="p-2 text-amber-600 hover:bg-amber-50 rounded"
@@ -168,92 +184,181 @@ export default function SuperadminPartners() {
         )}
       </div>
 
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Create Partner">
+      <RectangularModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        size="2xl"
+        title="Create Partner"
+      >
         <form onSubmit={handleCreatePartner} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Representative Name *</label>
-            <input
-              required
-              type="text"
-              value={newPartner.representativeName}
-              onChange={(e) => setNewPartner({ ...newPartner, representativeName: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Representative Name *
+              </label>
+              <input
+                required
+                type="text"
+                value={newPartner.representativeName}
+                onChange={(e) =>
+                  setNewPartner({
+                    ...newPartner,
+                    representativeName: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Company Name
+              </label>
+              <input
+                type="text"
+                value={newPartner.companyName}
+                onChange={(e) =>
+                  setNewPartner({ ...newPartner, companyName: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone *
+              </label>
+              <input
+                required
+                type="text"
+                value={newPartner.phone}
+                onChange={(e) =>
+                  setNewPartner({ ...newPartner, phone: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email *
+              </label>
+              <input
+                required
+                type="email"
+                value={newPartner.email}
+                onChange={(e) =>
+                  setNewPartner({ ...newPartner, email: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Address
+              </label>
+              <input
+                type="text"
+                value={newPartner.address}
+                onChange={(e) =>
+                  setNewPartner({ ...newPartner, address: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                GST Number
+              </label>
+              <input
+                type="text"
+                value={newPartner.gstNumber}
+                onChange={(e) =>
+                  setNewPartner({ ...newPartner, gstNumber: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Sales Representative Name
+              </label>
+              <input
+                type="text"
+                value={newPartner.salesRepresentativeName}
+                onChange={(e) =>
+                  setNewPartner({
+                    ...newPartner,
+                    salesRepresentativeName: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="relative mt-1">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={newPartner.password}
+                  onChange={(e) =>
+                    setNewPartner({ ...newPartner, password: e.target.value })
+                  }
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Confirm Password
+              </label>
+              <div className="relative mt-1">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={newPartner.confirmPassword}
+                  onChange={(e) =>
+                    setNewPartner({
+                      ...newPartner,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Company Name</label>
-            <input
-              type="text"
-              value={newPartner.companyName}
-              onChange={(e) => setNewPartner({ ...newPartner, companyName: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Phone *</label>
-            <input
-              required
-              type="text"
-              value={newPartner.phone}
-              onChange={(e) => setNewPartner({ ...newPartner, phone: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email *</label>
-            <input
-              required
-              type="email"
-              value={newPartner.email}
-              onChange={(e) => setNewPartner({ ...newPartner, email: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Address</label>
-            <input
-              type="text"
-              value={newPartner.address}
-              onChange={(e) => setNewPartner({ ...newPartner, address: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">GST Number</label>
-            <input
-              type="text"
-              value={newPartner.gstNumber}
-              onChange={(e) => setNewPartner({ ...newPartner, gstNumber: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Sales Representative Name</label>
-            <input
-              type="text"
-              value={newPartner.salesRepresentativeName}
-              onChange={(e) => setNewPartner({ ...newPartner, salesRepresentativeName: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              value={newPartner.password}
-              onChange={(e) => setNewPartner({ ...newPartner, password: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-            <input
-              type="password"
-              value={newPartner.confirmPassword}
-              onChange={(e) => setNewPartner({ ...newPartner, confirmPassword: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
+
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
@@ -267,48 +372,62 @@ export default function SuperadminPartners() {
               disabled={createPartner.isPending}
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 disabled:opacity-50"
             >
-              {createPartner.isPending ? 'Creating...' : 'Create'}
+              {createPartner.isPending ? "Creating..." : "Create"}
             </button>
           </div>
         </form>
-      </Modal>
+      </RectangularModal>
 
-      <Modal isOpen={generateKeysModalOpen} onClose={() => setGenerateKeysModalOpen(false)} title="Generate Bulk Keys">
+      <Modal
+        isOpen={generateKeysModalOpen}
+        onClose={() => {
+          setGenerateKeysModalOpen(false);
+          setSelectedPartner(null);
+        }}
+        title="Generate Bulk Keys"
+      >
         <form onSubmit={handleGenerateKeys} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Quantity</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Quantity
+            </label>
             <input
               type="number"
               min="1"
               value={keyQuantity}
-              onChange={(e) => setKeyQuantity(parseInt(e.target.value))}
+              onChange={(e) => setKeyQuantity(parseInt(e.target.value) || 1)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Validity (days)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Validity (days)
+            </label>
             <input
               type="number"
               min="1"
               value={keyValidity}
-              onChange={(e) => setKeyValidity(parseInt(e.target.value))}
+              onChange={(e) => setKeyValidity(parseInt(e.target.value) || 30)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
-              onClick={() => setGenerateKeysModalOpen(false)}
+              onClick={() => {
+                setGenerateKeysModalOpen(false);
+                setSelectedPartner(null);
+              }}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={generateKeys?.isPending}
+              disabled={generateKeys.isPending || !selectedPartner}
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 disabled:opacity-50"
             >
-              {generateKeys?.isPending ? 'Generating...' : 'Generate'}
+              {generateKeys.isPending ? "Generating..." : "Generate"}
             </button>
           </div>
         </form>
@@ -316,4 +435,3 @@ export default function SuperadminPartners() {
     </div>
   );
 }
-

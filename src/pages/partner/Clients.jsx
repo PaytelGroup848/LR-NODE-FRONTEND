@@ -2,16 +2,17 @@ import { useState } from "react";
 import DataTable from "../../components/DataTable";
 import Pagination from "../../components/Pagination";
 import StatusBadge from "../../components/StatusBadge";
-// import Modal from "../../components/Modal";
 import { usePartnerClients } from "../../hooks/usePartnerClients";
 import { useCreatePartnerClient } from "../../hooks/useCreatePartnerClient";
 import { Plus } from "lucide-react";
 import RectangularModal from "../../components/RectangularModal";
-
+import { Eye, EyeOff } from "lucide-react";
 export default function PartnerClients() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [newClient, setNewClient] = useState({
     representativeName: "",
     companyName: "",
@@ -103,134 +104,177 @@ export default function PartnerClients() {
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         title="Create Client"
+        size="2xl"
       >
         <form onSubmit={handleCreateClient} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Representative Name *
-            </label>
-            <input
-              required
-              type="text"
-              value={newClient.representativeName}
-              onChange={(e) =>
-                setNewClient({
-                  ...newClient,
-                  representativeName: e.target.value,
-                })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Representative Name *
+              </label>
+              <input
+                required
+                type="text"
+                value={newClient.representativeName}
+                onChange={(e) =>
+                  setNewClient({
+                    ...newClient,
+                    representativeName: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Company Name
+              </label>
+              <input
+                type="text"
+                value={newClient.companyName}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, companyName: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone *
+              </label>
+              <input
+                required
+                type="text"
+                value={newClient.phone}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, phone: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email *
+              </label>
+              <input
+                required
+                type="email"
+                value={newClient.email}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, email: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Address
+              </label>
+              <input
+                type="text"
+                value={newClient.address}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, address: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                GST Number
+              </label>
+              <input
+                type="text"
+                value={newClient.gstNumber}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, gstNumber: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Sales Representative Name
+              </label>
+              <input
+                type="text"
+                value={newClient.salesRepresentativeName}
+                onChange={(e) =>
+                  setNewClient({
+                    ...newClient,
+                    salesRepresentativeName: e.target.value,
+                  })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="relative mt-1">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={newClient.password}
+                  onChange={(e) =>
+                    setNewClient({ ...newClient, password: e.target.value })
+                  }
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Confirm Password
+              </label>
+              <div className="relative mt-1">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={newClient.confirmPassword}
+                  onChange={(e) =>
+                    setNewClient({
+                      ...newClient,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Company Name
-            </label>
-            <input
-              type="text"
-              value={newClient.companyName}
-              onChange={(e) =>
-                setNewClient({ ...newClient, companyName: e.target.value })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Phone *
-            </label>
-            <input
-              required
-              type="text"
-              value={newClient.phone}
-              onChange={(e) =>
-                setNewClient({ ...newClient, phone: e.target.value })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email *
-            </label>
-            <input
-              required
-              type="email"
-              value={newClient.email}
-              onChange={(e) =>
-                setNewClient({ ...newClient, email: e.target.value })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Address
-            </label>
-            <input
-              type="text"
-              value={newClient.address}
-              onChange={(e) =>
-                setNewClient({ ...newClient, address: e.target.value })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              GST Number
-            </label>
-            <input
-              type="text"
-              value={newClient.gstNumber}
-              onChange={(e) =>
-                setNewClient({ ...newClient, gstNumber: e.target.value })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Sales Representative Name
-            </label>
-            <input
-              type="text"
-              value={newClient.salesRepresentativeName}
-              onChange={(e) =>
-                setNewClient({
-                  ...newClient,
-                  salesRepresentativeName: e.target.value,
-                })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              value={newClient.password}
-              onChange={(e) =>
-                setNewClient({ ...newClient, password: e.target.value })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              value={newClient.confirmPassword}
-              onChange={(e) =>
-                setNewClient({ ...newClient, confirmPassword: e.target.value })
-              }
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
+
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"

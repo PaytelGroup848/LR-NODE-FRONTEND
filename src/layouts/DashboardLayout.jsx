@@ -1,13 +1,23 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Menu, X, Home, Users, UserPlus, Key, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  Home,
+  Users,
+  UserPlus,
+  Key,
+  LogOut,
+  FileText,
+} from "lucide-react";
 
 const navItems = {
   SUPERADMIN: [
     { label: "Dashboard", href: "/superadmin/dashboard", icon: Home },
     { label: "Clients", href: "/superadmin/clients", icon: Users },
     { label: "Partners", href: "/superadmin/partners", icon: UserPlus },
+    { label: "Billing", href: "/superadmin/billing", icon: FileText },
     { label: "Keys", href: "/superadmin/keys", icon: Key },
   ],
   PARTNER: [

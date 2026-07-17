@@ -8,6 +8,7 @@ import SuperadminDashboard from '../pages/superadmin/Dashboard';
 import SuperadminClients from '../pages/superadmin/Clients';
 import SuperadminPartners from '../pages/superadmin/Partners';
 import SuperadminKeys from '../pages/superadmin/Keys';
+import SuperadminBilling from '../pages/superadmin/Billing';
 import PartnerDashboard from '../pages/partner/Dashboard';
 import PartnerClients from '../pages/partner/Clients';
 import PartnerKeys from '../pages/partner/Keys';
@@ -31,6 +32,7 @@ export default function AppRoutes() {
             <Route path="clients" element={<SuperadminClients />} />
             <Route path="partners" element={<SuperadminPartners />} />
             <Route path="keys" element={<SuperadminKeys />} />
+            <Route path="billing" element={<SuperadminBilling />} />
           </Route>
 
           <Route path="/partner" element={

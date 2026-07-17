@@ -91,3 +91,23 @@ export const unsuspendKey = async (keyId) => {
   return response.data;
 };
 
+export const generateBill = async (data) => {
+  const response = await axiosInstance.post('/superadmin/billing/generate', data);
+  return response.data;
+};
+
+export const getBills = async (params) => {
+  const response = await axiosInstance.get('/superadmin/billing', { params });
+  return response.data;
+};
+
+export const getBill = async (billId) => {
+  const response = await axiosInstance.get(`/superadmin/billing/${billId}`);
+  return response.data;
+};
+
+export const sendBillEmail = async (billId) => {
+  const response = await axiosInstance.post(`/superadmin/billing/${billId}/send-email`);
+  return response.data;
+};
+
