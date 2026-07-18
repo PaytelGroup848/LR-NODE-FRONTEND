@@ -48,6 +48,16 @@ export default function SuperadminKeys() {
       render: (row) => <StatusBadge status={row.status} />,
     },
     {
+      key: "assignedTo",
+      title: "Assigned To",
+      render: (row) =>
+        row?.assignedToClient?.email ? (
+          <span className="text-gray-900">{row.assignedToClient.email}</span>
+        ) : (
+          <span className="text-orange-500 font-medium">Unassigned</span>
+        ),
+    },
+    {
       key: "issuedAt",
       title: "Issued At",
       render: (row) => formatDate(row.issuedAt),

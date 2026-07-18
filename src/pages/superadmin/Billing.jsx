@@ -31,6 +31,7 @@ export default function Billing() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const queryClient = useQueryClient();
+  const [loadingAction, setLoadingAction] = useState(null);
 
   const { data: clientsData } = useQuery({
     queryKey: ["superadminClients", { page: 1, limit: 100 }],
@@ -81,24 +82,55 @@ export default function Billing() {
     });
   };
 
-  const handleViewPDF = (billId) => {
-    const url = `${axiosInstance.defaults.baseURL}/superadmin/billing/${billId}/pdf?mode=view`;
-    window.open(url, "_blank");
+  const handleViewPDF = async (billId) => {
+    setLoadingAction({ billId, action: "view" });
+    try {
+      const response = await axiosInstance.get(
+        `/superadmin/billing/${billId}/pdf?mode=view`,
+        { responseType: "blob" },
+      );
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, "_blank");
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+    } catch (error) {
+      console.error("Error viewing PDF:", error);
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
-  const handleDownloadPDF = (billId) => {
-    const url = `${axiosInstance.defaults.baseURL}/superadmin/billing/${billId}/pdf?mode=download`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `Invoice_${billId}.pdf`;
-    a.click();
+  const handleDownloadPDF = async (billId) => {
+    setLoadingAction({ billId, action: "download" });
+    try {
+      const response = await axiosInstance.get(
+        `/superadmin/billing/${billId}/pdf?mode=download`,
+        { responseType: "blob" },
+      );
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `Invoice_${billId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
   const handleSendEmail = (billId) => {
     if (
       window.confirm("Are you sure you want to send this invoice via email?")
     ) {
-      sendBillEmailMutation.mutate(billId);
+      setLoadingAction({ billId, action: "email" });
+      sendBillEmailMutation.mutate(billId, {
+        onSettled: () => setLoadingAction(null),
+      });
     }
   };
 
@@ -148,29 +180,54 @@ export default function Billing() {
     {
       key: "actions",
       title: "Actions",
-      render: (row) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleViewPDF(row._id)}
-            className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
-          >
-            View
-          </button>
-          <button
-            onClick={() => handleDownloadPDF(row._id)}
-            className="text-green-600 hover:text-green-900 text-sm font-medium"
-          >
-            Download
-          </button>
-          <button
-            onClick={() => handleSendEmail(row._id)}
-            className="text-blue-600 hover:text-blue-900 text-sm font-medium"
-            disabled={sendBillEmailMutation.isPending}
-          >
-            Send Email
-          </button>
-        </div>
-      ),
+      render: (row) => {
+        const isViewLoading =
+          loadingAction?.billId === row._id && loadingAction?.action === "view";
+        const isDownloadLoading =
+          loadingAction?.billId === row._id &&
+          loadingAction?.action === "download";
+        const isEmailLoading =
+          loadingAction?.billId === row._id &&
+          loadingAction?.action === "email";
+        const isAnyLoadingOnRow = loadingAction?.billId === row._id;
+
+        return (
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleViewPDF(row._id)}
+              disabled={isAnyLoadingOnRow}
+              className="text-indigo-600 hover:text-indigo-900 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              {isViewLoading && (
+                <span className="inline-block w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+              )}
+              {isViewLoading ? "Loading..." : "View"}
+            </button>
+
+            <button
+              onClick={() => handleDownloadPDF(row._id)}
+              disabled={isAnyLoadingOnRow}
+              className="text-green-600 hover:text-green-900 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              {isDownloadLoading && (
+                <span className="inline-block w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+              )}
+              {isDownloadLoading ? "Downloading..." : "Download"}
+            </button>
+
+            <button
+              onClick={() => handleSendEmail(row._id)}
+              disabled={isAnyLoadingOnRow}
+              className="text-blue-600 hover:text-blue-900 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              {isEmailLoading && (
+                <span className="inline-block w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              )}
+              {isEmailLoading ? "Sending..." : "Send Email"}
+            </button>
+          </div>
+        );
+      },
     },
   ];
 
