@@ -128,7 +128,7 @@ export default function PartnerClients() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Company Name
+                Company Name (optional)
               </label>
               <input
                 type="text"
@@ -172,7 +172,7 @@ export default function PartnerClients() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Address
+                Address (optional)
               </label>
               <input
                 type="text"
@@ -186,7 +186,7 @@ export default function PartnerClients() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                GST Number
+                GST Number (optional)
               </label>
               <input
                 type="text"
@@ -200,7 +200,7 @@ export default function PartnerClients() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Sales Representative Name
+                Sales Representative Name *
               </label>
               <input
                 type="text"
@@ -231,7 +231,7 @@ export default function PartnerClients() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  className="absolute cursor-pointer inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -262,7 +262,7 @@ export default function PartnerClients() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  className="absolute cursor-pointer inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                   tabIndex={-1}
                 >
                   {showConfirmPassword ? (
@@ -279,14 +279,14 @@ export default function PartnerClients() {
             <button
               type="button"
               onClick={() => setCreateModalOpen(false)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 cursor-pointer text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={createClient.isPending}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 disabled:opacity-50"
+              className="px-4 py-2 cursor-pointer bg-indigo-600 text-white rounded-md hover:bg-indigo-500 disabled:opacity-50"
             >
               {createClient.isPending ? "Creating..." : "Create"}
             </button>

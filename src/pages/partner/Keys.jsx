@@ -96,6 +96,16 @@ export default function PartnerKeys() {
       render: (row) => <StatusBadge status={row.status} />,
     },
     {
+      key: "assignedTo",
+      title: "Assigned To",
+      render: (row) =>
+        row?.assignedToClient?.email ? (
+          <span className="text-gray-900">{row.assignedToClient.email}</span>
+        ) : (
+          <span className="text-orange-500 font-medium">Unassigned</span>
+        ),
+    },
+    {
       key: "issuedAt",
       title: "Issued At",
       render: (row) => formatDate(row.issuedAt),
@@ -143,13 +153,13 @@ export default function PartnerKeys() {
               <User className="h-4 w-4" />
             </button>
           )}
-          <button
+          {/* <button
             onClick={() => sendEmail.mutate(row._id)}
             className="p-2 text-blue-600 hover:bg-blue-50 rounded"
             title="Send Email"
           >
             <Mail className="h-4 w-4" />
-          </button>
+          </button> */}
           {row.status === "active" ? (
             <button
               onClick={() => suspendKey.mutate(row._id)}
