@@ -159,3 +159,16 @@ export const deleteClient = async (clientId) => {
   );
   return response.data;
 };
+
+export const getPartnerById = async (partnerId) => {
+  const response = await axiosInstance.get(`/superadmin/partners/${partnerId}`);
+  return response.data;
+};
+
+export const updatePartner = async (partnerId, data) => {
+  const response = await axiosInstance.patch(
+    `/superadmin/partners/${partnerId}`,
+    data,
+  );
+  return response.data;
+};

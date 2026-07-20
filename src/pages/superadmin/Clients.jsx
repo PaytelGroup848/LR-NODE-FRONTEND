@@ -9,12 +9,16 @@ import { useCreateClient } from "../../hooks/useCreateClient";
 import { useUpdateClient } from "../../hooks/useUpdateClient";
 import { useDeleteClient } from "../../hooks/useDeleteClient";
 import { useClientDetail } from "../../hooks/useClientDetail";
+import { useSuspendClient } from "../../hooks/useSuspendClient";
+import { useUnsuspendClient } from "../../hooks/useUnsuspendClient";
 import {
   Plus,
   Pencil,
   Eye,
   Trash2,
   EyeOff,
+  Ban,
+  Check,
   Eye as EyeIcon,
 } from "lucide-react";
 
@@ -27,6 +31,9 @@ export default function SuperadminClients() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState(null);
+
+  const suspendClient = useSuspendClient();
+  const unsuspendClient = useUnsuspendClient();
 
   const [newClient, setNewClient] = useState({
     representativeName: "",
@@ -164,13 +171,23 @@ export default function SuperadminClients() {
           >
             <Pencil className="h-4 w-4" />
           </button>
-          <button
-            onClick={() => openDeleteModal(row)}
-            className="p-2 text-red-600 hover:bg-red-50 rounded"
-            title="Delete"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+          {row.status === "active" ? (
+            <button
+              onClick={() => suspendClient.mutate(row._id)}
+              className="p-2 text-amber-600 hover:bg-amber-50 rounded"
+              title="Suspend"
+            >
+              <Ban className="h-4 w-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => unsuspendClient.mutate(row._id)}
+              className="p-2 text-green-600 hover:bg-green-50 rounded"
+              title="Unsuspend"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+          )}
         </div>
       ),
     },
@@ -585,7 +602,7 @@ export default function SuperadminClients() {
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-2">
                 Assigned Keys ({clientDetailData.data.keys?.length || 0})
               </h3>
@@ -627,7 +644,7 @@ export default function SuperadminClients() {
               ) : (
                 <p className="text-sm text-gray-500">No keys assigned yet.</p>
               )}
-            </div>
+            </div> */}
           </div>
         ) : (
           <p className="text-sm text-gray-500">Client not found.</p>
